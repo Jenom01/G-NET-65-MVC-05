@@ -6,11 +6,11 @@ using GymManagementSystem_DAL.Repositories;
 
 namespace GymManagementSystem_BLL.Services
 {
-    public class TrainerService(ITrainerRepository trainers) : ITrainerService
+    public class TrainerService(IUnitOfWork uow) : ITrainerService
     {
         public async Task<IEnumerable<TrainerViewModel>> GetAllAsync(CancellationToken ct = default)
         {
-            var items = await trainers.GetAllAsync(ct);
+            var items = await uow.Trainers.GetAllAsync(ct);
 
             return items.Select(t => new TrainerViewModel
             {
@@ -27,10 +27,10 @@ namespace GymManagementSystem_BLL.Services
             var email = model.Email.Trim().ToLowerInvariant();
             var phone = model.Phone.Trim();
 
-            if (await trainers.IsEmailTakenAsync(email, ct: ct))
+            if (await uow.Trainers.IsEmailTakenAsync(email, ct: ct))
                 return TrainerResult.EmailExists;
 
-            if (await trainers.IsPhoneTakenAsync(phone, ct: ct))
+            if (await uow.Trainers.IsPhoneTakenAsync(phone, ct: ct))
                 return TrainerResult.PhoneExists;
 
             var trainer = new Trainer
@@ -49,15 +49,15 @@ namespace GymManagementSystem_BLL.Services
                 }
             };
 
-            trainers.Add(trainer);
-            await trainers.SaveChangesAsync(ct);
+            uow.Trainers.Add(trainer);
+            await uow.SaveChangesAsync(ct);
 
             return TrainerResult.Success;
         }
 
         public async Task<TrainerDetailsViewModel?> GetDetailsAsync(int id, CancellationToken ct = default)
         {
-            var trainer = await trainers.GetByIdAsync(id, ct);
+            var trainer = await uow.Trainers.GetByIdAsync(id, ct);
 
             if (trainer is null) return null;
 
@@ -75,7 +75,7 @@ namespace GymManagementSystem_BLL.Services
 
         public async Task<TrainerEditViewModel?> GetForUpdateAsync(int id, CancellationToken ct = default)
         {
-            var trainer = await trainers.GetByIdAsync(id, ct);
+            var trainer = await uow.Trainers.GetByIdAsync(id, ct);
 
             if (trainer is null) return null;
 
@@ -93,16 +93,16 @@ namespace GymManagementSystem_BLL.Services
 
         public async Task<TrainerResult> UpdateAsync(int id, TrainerEditViewModel model, CancellationToken ct = default)
         {
-            var trainer = await trainers.GetByIdAsync(id, ct);
+            var trainer = await uow.Trainers.GetByIdAsync(id, ct);
 
             if (trainer is null) return TrainerResult.NotFound;
 
             var email = model.Email.Trim().ToLowerInvariant();
             var phone = model.Phone.Trim();
 
-            if (await trainers.IsEmailTakenAsync(email, trainer.Id, ct))
+            if (await uow.Trainers.IsEmailTakenAsync(email, trainer.Id, ct))
                 return TrainerResult.EmailExists;
-            if (await trainers.IsPhoneTakenAsync(phone, trainer.Id, ct))
+            if (await uow.Trainers.IsPhoneTakenAsync(phone, trainer.Id, ct))
                 return TrainerResult.PhoneExists;
 
             trainer.Email = email;
@@ -112,22 +112,22 @@ namespace GymManagementSystem_BLL.Services
             trainer.Address.Street = model.Street.Trim();
             trainer.Address.City = model.City.Trim();
 
-            await trainers.SaveChangesAsync(ct);
+            await uow.SaveChangesAsync(ct);
 
             return TrainerResult.Success;
         }
 
         public async Task<TrainerResult> DeleteAsync(int id, CancellationToken ct = default)
         {
-            var trainer = await trainers.GetByIdAsync(id, ct);
+            var trainer = await uow.Trainers.GetByIdAsync(id, ct);
 
             if (trainer is null) return TrainerResult.NotFound;
 
-            if (await trainers.HasActiveSessionsAsync(id, ct))
+            if (await uow.Trainers.HasActiveSessionsAsync(id, ct))
                 return TrainerResult.HasSessions;
 
-            trainers.Delete(trainer);
-            await trainers.SaveChangesAsync(ct);
+            uow.Trainers.Delete(trainer);
+            await uow.SaveChangesAsync(ct);
 
             return TrainerResult.Success;
         }

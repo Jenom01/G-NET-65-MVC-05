@@ -19,10 +19,7 @@ namespace GymManagementSystem_DAL
                        .AddInterceptors(sp.GetRequiredService<BaseEntityInterceptor>());
             });
 
-            services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-            services.AddScoped<IPlanRepository, PlanRepository>();
-            services.AddScoped<IMemberRepository, MemberRepository>();
-            services.AddScoped<ITrainerRepository, TrainerRepository>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             return services;
         }

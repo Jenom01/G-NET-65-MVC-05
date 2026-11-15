@@ -18,7 +18,5 @@ namespace GymManagementSystem_DAL.Repositories
         void Add(TEntity entity);
         void Update(TEntity entity);
         void Delete(TEntity entity);
-
-        Task<int> SaveChangesAsync(CancellationToken ct = default);
     }
 }
