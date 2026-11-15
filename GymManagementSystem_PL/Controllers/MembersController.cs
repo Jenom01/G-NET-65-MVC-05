@@ -101,9 +101,7 @@ namespace GymManagementSystem_PL.Controllers
 
             if (member is null) return NotFound();
 
-            ViewBag.Id = member.Id;
-
-            return View();
+            return View(member);
         }
 
         [HttpPost]
