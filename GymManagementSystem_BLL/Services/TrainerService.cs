@@ -1,4 +1,5 @@
-﻿using GymManagementSystem_BLL.ViewModels.Trainers;
+﻿using GymManagementSystem_BLL.Helpers;
+using GymManagementSystem_BLL.ViewModels.Trainers;
 using GymManagementSystem_DAL.Models;
 using GymManagementSystem_DAL.Models.ValueObjects;
 using GymManagementSystem_DAL.Repositories;
@@ -17,7 +18,7 @@ namespace GymManagementSystem_BLL.Services
                 Name = t.Name,
                 Email = t.Email,
                 Phone = t.Phone,
-                Speciality = t.Speciality.ToString()
+                Speciality = t.Speciality.GetDisplayName()
             });
         }
 
@@ -68,7 +69,7 @@ namespace GymManagementSystem_BLL.Services
                 Phone = trainer.Phone,
                 DateOfBirth = trainer.DateOfBirth,
                 Address = $"{trainer.Address.BuildingNumber} - {trainer.Address.Street} - {trainer.Address.City}",
-                Speciality = trainer.Speciality.ToString()
+                Speciality = trainer.Speciality.GetDisplayName()
             };
         }
 

@@ -1,4 +1,5 @@
-﻿using GymManagementSystem_BLL.ViewModels.HealthRecords;
+﻿using GymManagementSystem_BLL.Helpers;
+using GymManagementSystem_BLL.ViewModels.HealthRecords;
 using GymManagementSystem_BLL.ViewModels.Members;
 using GymManagementSystem_DAL.Models;
 using GymManagementSystem_DAL.Models.ValueObjects;
@@ -102,9 +103,9 @@ namespace GymManagementSystem_BLL.Services
 
             return new HealthRecordDetailsViewModel
             {
-                Height = healthRecord!.Height,
+                Height = healthRecord.Height,
                 Weight = healthRecord.Weight,
-                BloodType = healthRecord.BloodType.ToString(),
+                BloodType = healthRecord.BloodType.GetDisplayName(),
                 Note = healthRecord.Note ?? "No Notes"
             };
         }
