@@ -27,14 +27,14 @@ namespace GymManagementSystem_DAL.Data
             }
         }
 
-        public DbSet<Plan> Plans { get; set; }
-        public DbSet<Category> Categories { get; set; }
-        public DbSet<User> Users { get; set; }
-        public DbSet<Member> Members { get; set; }
-        public DbSet<Trainer> Trainers { get; set; }
-        public DbSet<HealthRecord> HealthRecords { get; set; }
-        public DbSet<Session> Sessions { get; set; }
-        public DbSet<Membership> Memberships { get; set; }
-        public DbSet<Booking> Bookings { get; set; }
+        public DbSet<Plan> Plans => Set<Plan>();
+        public DbSet<Category> Categories => Set<Category>();
+        public DbSet<User> Users => Set<User>();
+        public DbSet<Member> Members => Set<Member>();
+        public DbSet<Trainer> Trainers => Set<Trainer>();
+        public DbSet<HealthRecord> HealthRecords => Set<HealthRecord>();
+        public DbSet<Session> Sessions => Set<Session>();
+        public DbSet<Membership> Memberships => Set<Membership>();
+        public DbSet<Booking> Bookings => Set<Booking>();
     }
 }

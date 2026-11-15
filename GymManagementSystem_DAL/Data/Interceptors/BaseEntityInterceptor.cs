@@ -24,7 +24,7 @@ namespace GymManagementSystem_DAL.Data.Interceptors
 
             var now = DateTime.UtcNow;
 
-            foreach (var entry in context.ChangeTracker.Entries<BaseEntity>())
+            foreach (var entry in context.ChangeTracker.Entries<BaseEntity>().ToList())
             {
                 switch (entry.State)
                 {
@@ -33,10 +33,12 @@ namespace GymManagementSystem_DAL.Data.Interceptors
                         if (entry.Entity is Member member) member.JoinDate ??= now;
                         if (entry.Entity is Trainer trainer) trainer.HireDate ??= now;
                         break;
+
                     case EntityState.Modified:
                         entry.Property(nameof(BaseEntity.CreatedAt)).IsModified = false;
                         entry.Entity.LastUpdatedAt = now;
                         break;
+
                     case EntityState.Deleted:
                         entry.State = EntityState.Modified;
                         entry.Entity.IsDeleted = true;
@@ -45,6 +47,10 @@ namespace GymManagementSystem_DAL.Data.Interceptors
                         foreach (var reference in entry.References)
                             if (reference.TargetEntry is { } target && target.Metadata.IsOwned())
                                 target.State = EntityState.Unchanged;
+                        break;
+
+                    case EntityState.Unchanged when entry.References.Any(r => r.TargetEntry is { } t && t.Metadata.IsOwned() && t.State == EntityState.Modified):
+                        entry.Property(nameof(BaseEntity.LastUpdatedAt)).CurrentValue = now;
                         break;
                 }
             }

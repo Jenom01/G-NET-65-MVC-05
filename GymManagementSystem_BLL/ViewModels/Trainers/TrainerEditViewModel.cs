@@ -6,7 +6,7 @@ namespace GymManagementSystem_BLL.ViewModels.Trainers
 {
     public class TrainerEditViewModel
     {
-        public string? Name { get; set; } = default!;
+        public string Name { get; set; } = default!;
 
         [Required(ErrorMessage = "Email is required")]
         [StringLength(100, ErrorMessage = "Email must be 100 characters or less")]
