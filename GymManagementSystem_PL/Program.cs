@@ -1,3 +1,4 @@
+using AutoMapper;
 using GymManagementSystem_BLL;
 using GymManagementSystem_DAL;
 using GymManagementSystem_DAL.Data;
@@ -21,6 +22,7 @@ if (app.Environment.IsDevelopment())
     var dbContext = scope.ServiceProvider.GetRequiredService<GymDbContext>();
     await dbContext.Database.MigrateAsync();
     await DatabaseSeeder.SeedAllAsync(dbContext);
+    scope.ServiceProvider.GetRequiredService<IMapper>().ConfigurationProvider.AssertConfigurationIsValid();
 }
 
 app.UseRouting();
