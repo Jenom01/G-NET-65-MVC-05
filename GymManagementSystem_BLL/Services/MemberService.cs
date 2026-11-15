@@ -131,8 +131,7 @@ namespace GymManagementSystem_BLL.Services
         {
             var member = await members.GetByIdAsync(id, ct);
 
-            if (member is null || member.Name != model.Name)
-                return MemberResult.Failure;
+            if (member is null) return MemberResult.NotFound;
 
             var email = model.Email.Trim().ToLowerInvariant();
             var phone = model.Phone.Trim();
@@ -145,12 +144,9 @@ namespace GymManagementSystem_BLL.Services
 
             member.Email = email;
             member.Phone = phone;
-            member.Address = new()
-            {
-                City = model.City.Trim(),
-                Street = model.Street.Trim(),
-                BuildingNumber = model.BuildingNumber!.Value
-            };
+            member.Address.City = model.City.Trim();
+            member.Address.Street = model.Street.Trim();
+            member.Address.BuildingNumber = model.BuildingNumber!.Value;
 
             await members.SaveChangesAsync(ct);
 

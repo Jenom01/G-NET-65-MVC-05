@@ -6,7 +6,6 @@
         EmailExists,
         PhoneExists,
         NotFound,
-        HasActiveBookings,
-        Failure
+        HasActiveBookings
     }
 }
