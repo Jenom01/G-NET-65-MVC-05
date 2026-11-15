@@ -3,20 +3,7 @@
     ViewData["Title"] = "Plans";
 }
 
-@if (TempData["Success"] is string success)
-{
-    <div id="Alert" class="alert alert-success alert-dismissible fade show mt-4">
-        <i class="bi bi-check-circle-fill me-2"></i>@success
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-}
-else if (TempData["Error"] is string error)
-{
-    <div id="Alert" class="alert alert-danger alert-dismissible fade show mt-4">
-        <i class="bi bi-exclamation-triangle-fill me-2"></i>@error
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-}
+<partial name="_Alerts" />
 
 <header class="d-flex justify-content-between mt-5 mb-4 align-items-center">
     <div>
