@@ -163,6 +163,9 @@ namespace GymManagementSystem_BLL.Services
             if (await members.HasActiveBookingsAsync(id, ct))
                 return MemberResult.HasActiveBookings;
 
+            if (member.HealthRecord is not null)
+                healthRecords.Delete(member.HealthRecord);
+
             members.Delete(member);
             await members.SaveChangesAsync(ct);
 
