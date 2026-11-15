@@ -1,4 +1,5 @@
-﻿using GymManagementSystem_DAL.Enums;
+﻿using GymManagementSystem_BLL.Validation;
+using GymManagementSystem_DAL.Enums;
 using System.ComponentModel.DataAnnotations;
 
 namespace GymManagementSystem_BLL.ViewModels.Trainers
@@ -9,11 +10,11 @@ namespace GymManagementSystem_BLL.ViewModels.Trainers
 
         [Required(ErrorMessage = "Email is required")]
         [StringLength(100, ErrorMessage = "Email must be 100 characters or less")]
-        [EmailAddress(ErrorMessage = "Invalid email format")]
+        [RegularExpression(ValidationPatterns.Email, ErrorMessage = "Invalid email format")]
         public string Email { get; set; } = default!;
 
         [Required(ErrorMessage = "Phone number is required")]
-        [RegularExpression(@"^(010|011|012|015)\d{8}$",
+        [RegularExpression(ValidationPatterns.EgyptianMobile,
             ErrorMessage = "Phone must be a valid Egyptian mobile number (e.g. 01012345678)")]
         public string Phone { get; set; } = default!;
 
@@ -24,12 +25,12 @@ namespace GymManagementSystem_BLL.ViewModels.Trainers
 
         [Required(ErrorMessage = "Street is required")]
         [StringLength(30, MinimumLength = 2, ErrorMessage = "Street must be between 2 and 30 characters")]
-        [RegularExpression(@"^[a-zA-Z\u0600-\u06FF0-9\s]+$", ErrorMessage = "Street can only contain letters, numbers, and spaces")]
+        [RegularExpression(ValidationPatterns.LettersAndDigits, ErrorMessage = "Street can only contain letters, numbers, and spaces")]
         public string Street { get; set; } = default!;
 
         [Required(ErrorMessage = "City is required")]
         [StringLength(30, MinimumLength = 2, ErrorMessage = "City must be between 2 and 30 characters")]
-        [RegularExpression(@"^[a-zA-Z\u0600-\u06FF\s]+$", ErrorMessage = "City can only contain letters and spaces")]
+        [RegularExpression(ValidationPatterns.Letters, ErrorMessage = "City can only contain letters and spaces")]
         public string City { get; set; } = default!;
 
         [Required(ErrorMessage = "Specialty is required")]
