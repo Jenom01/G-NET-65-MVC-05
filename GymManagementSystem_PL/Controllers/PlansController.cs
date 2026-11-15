@@ -6,8 +6,8 @@ namespace GymManagementSystem_PL.Controllers
 {
     public class PlansController(IPlanService plans) : Controller
     {
-        public async Task<IActionResult> Index()
-            => View(await plans.GetAllAsync());
+        public async Task<IActionResult> Index(CancellationToken ct)
+            => View(await plans.GetAllAsync(ct));
 
         [HttpGet]
         public async Task<IActionResult> Details(int id, CancellationToken ct)
