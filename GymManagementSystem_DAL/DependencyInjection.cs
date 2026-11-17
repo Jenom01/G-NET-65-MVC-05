@@ -13,16 +13,16 @@ namespace GymManagementSystem_DAL
         {
             services.AddSingleton<BaseEntityInterceptor>();
 
+            var connectionString = configuration.GetConnectionString("DefaultConnection")
+                ?? throw new InvalidOperationException("Connection string 'DefaultConnection' was not found.");
+
             services.AddDbContext<GymDbContext>((sp, options) =>
             {
-                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"))
+                options.UseSqlServer(connectionString)
                        .AddInterceptors(sp.GetRequiredService<BaseEntityInterceptor>());
             });
 
-            services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-            services.AddScoped<IPlanRepository, PlanRepository>();
-            services.AddScoped<IMemberRepository, MemberRepository>();
-            services.AddScoped<ITrainerRepository, TrainerRepository>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             return services;
         }

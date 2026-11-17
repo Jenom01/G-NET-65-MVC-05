@@ -1,72 +1,36 @@
-﻿using GymManagementSystem_BLL.ViewModels.HealthRecords;
+﻿using AutoMapper;
+using GymManagementSystem_BLL.ViewModels.HealthRecords;
 using GymManagementSystem_BLL.ViewModels.Members;
 using GymManagementSystem_DAL.Models;
-using GymManagementSystem_DAL.Models.ValueObjects;
 using GymManagementSystem_DAL.Repositories;
 
 namespace GymManagementSystem_BLL.Services
 {
-    public class MemberService(IMemberRepository members, IGenericRepository<HealthRecord> healthRecords)
-        : IMemberService
+    public class MemberService(IUnitOfWork uow, IMapper mapper) : IMemberService
     {
         public async Task<IEnumerable<MemberIndexViewModel>> GetAllAsync(CancellationToken ct = default)
-        {
-            var items = await members.GetAllAsync(ct);
-
-            return items.Select(m => new MemberIndexViewModel
-            {
-                Id = m.Id,
-                Name = m.Name,
-                Email = m.Email,
-                Phone = m.Phone,
-                PhotoUrl = m.Photo,
-                JoinDate = m.JoinDate ?? m.CreatedAt,
-                Gender = m.Gender.ToString()
-            });
-        }
+            => mapper.Map<IEnumerable<MemberIndexViewModel>>(await uow.Members.GetAllAsync(ct));
 
         public async Task<MemberResult> CreateAsync(MemberCreateViewModel model, CancellationToken ct)
         {
-            var email = model.Email.Trim().ToLowerInvariant();
-            var phone = model.Phone.Trim();
+            model.Email = model.Email.Trim().ToLowerInvariant();
+            model.Phone = model.Phone.Trim();
 
-            if (await members.IsEmailTakenAsync(email, ct: ct))
+            if (await uow.Members.IsEmailTakenAsync(model.Email, ct: ct))
                 return MemberResult.EmailExists;
 
-            if (await members.IsPhoneTakenAsync(phone, ct: ct))
+            if (await uow.Members.IsPhoneTakenAsync(model.Phone, ct: ct))
                 return MemberResult.PhoneExists;
 
-            var member = new Member
-            {
-                Name = model.Name.Trim(),
-                Email = email,
-                Phone = phone,
-                DateOfBirth = model.DateOfBirth!.Value,
-                Gender = model.Gender!.Value,
-                Address = new Address
-                {
-                    City = model.City.Trim(),
-                    Street = model.Street.Trim(),
-                    BuildingNumber = model.BuildingNumber!.Value
-                },
-                HealthRecord = new HealthRecord
-                {
-                    Height = model.HealthRecord.Height!.Value,
-                    Weight = model.HealthRecord.Weight!.Value,
-                    BloodType = model.HealthRecord.BloodType!.Value,
-                    Note = model.HealthRecord.Note?.Trim()
-                }
-            };
-
-            members.Add(member);
-            await members.SaveChangesAsync(ct);
+            uow.Members.Add(mapper.Map<Member>(model));
+            await uow.SaveChangesAsync(ct);
 
             return MemberResult.Success;
         }
 
         public async Task<MemberDetailsViewModel?> GetDetailsAsync(int id, CancellationToken ct = default)
         {
-            var member = await members.GetDetailsAsync(id, ct);
+            var member = await uow.Members.GetDetailsAsync(id, ct);
 
             if (member is null) return null;
 
@@ -96,78 +60,51 @@ namespace GymManagementSystem_BLL.Services
 
         public async Task<HealthRecordDetailsViewModel?> GetHealthRecordAsync(int memberId, CancellationToken ct = default)
         {
-            var healthRecord = await healthRecords.GetWhereAsync(hr => hr.MemberId == memberId, ct);
-
-            if (healthRecord is null) return null;
-
-            return new HealthRecordDetailsViewModel
-            {
-                Height = healthRecord!.Height,
-                Weight = healthRecord.Weight,
-                BloodType = healthRecord.BloodType.ToString(),
-                Note = healthRecord.Note ?? "No Notes"
-            };
+            var healthRecord = await uow.HealthRecords.GetWhereAsync(hr => hr.MemberId == memberId, ct);
+            return healthRecord is null ? null : mapper.Map<HealthRecordDetailsViewModel>(healthRecord);
         }
 
         public async Task<MemberEditViewModel?> GetForUpdateAsync(int id, CancellationToken ct = default)
         {
-            var member = await members.GetByIdAsync(id, ct);
-
-            if (member is null) return null;
-
-            return new MemberEditViewModel
-            {
-                Name = member.Name,
-                PhotoUrl = member.Photo,
-                Email = member.Email,
-                Phone = member.Phone,
-                BuildingNumber = member.Address.BuildingNumber,
-                City = member.Address.City,
-                Street = member.Address.Street
-            };
+            var member = await uow.Members.GetByIdAsync(id, ct);
+            return member is null ? null : mapper.Map<MemberEditViewModel>(member);
         }
 
         public async Task<MemberResult> UpdateAsync(int id, MemberEditViewModel model, CancellationToken ct = default)
         {
-            var member = await members.GetByIdAsync(id, ct);
+            var member = await uow.Members.GetByIdAsync(id, ct);
 
-            if (member is null || member.Name != model.Name)
-                return MemberResult.Failure;
+            if (member is null) return MemberResult.NotFound;
 
-            var email = model.Email.Trim().ToLowerInvariant();
-            var phone = model.Phone.Trim();
+            model.Email = model.Email.Trim().ToLowerInvariant();
+            model.Phone = model.Phone.Trim();
 
-            if (await members.IsEmailTakenAsync(email, member.Id, ct))
+            if (await uow.Members.IsEmailTakenAsync(model.Email, member.Id, ct))
                 return MemberResult.EmailExists;
 
-            if (await members.IsPhoneTakenAsync(phone, member.Id, ct))
+            if (await uow.Members.IsPhoneTakenAsync(model.Phone, member.Id, ct))
                 return MemberResult.PhoneExists;
 
-            member.Email = email;
-            member.Phone = phone;
-            member.Address = new()
-            {
-                City = model.City.Trim(),
-                Street = model.Street.Trim(),
-                BuildingNumber = model.BuildingNumber!.Value
-            };
-
-            await members.SaveChangesAsync(ct);
+            mapper.Map(model, member);
+            await uow.SaveChangesAsync(ct);
 
             return MemberResult.Success;
         }
 
         public async Task<MemberResult> DeleteAsync(int id, CancellationToken ct = default)
         {
-            var member = await members.GetByIdAsync(id, ct, m => m.HealthRecord);
+            var member = await uow.Members.GetByIdAsync(id, ct, m => m.HealthRecord);
 
             if (member is null) return MemberResult.NotFound;
 
-            if (await members.HasActiveBookingsAsync(id, ct))
+            if (await uow.Members.HasActiveBookingsAsync(id, ct))
                 return MemberResult.HasActiveBookings;
 
-            members.Delete(member);
-            await members.SaveChangesAsync(ct);
+            if (member.HealthRecord is not null)
+                uow.HealthRecords.Delete(member.HealthRecord);
+
+            uow.Members.Delete(member);
+            await uow.SaveChangesAsync(ct);
 
             return MemberResult.Success;
         }

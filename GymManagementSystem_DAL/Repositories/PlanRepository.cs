@@ -14,7 +14,7 @@ namespace GymManagementSystem_DAL.Repositories
             return await _dbSet
                 .Where(p => p.Id == id)
                 .SelectMany(p => p.Memberships)
-                .AnyAsync(m => m.EndDate > now, ct);
+                .AnyAsync(m => m.EndDate > now && !m.Member.IsDeleted, ct);
         }
     }
 }

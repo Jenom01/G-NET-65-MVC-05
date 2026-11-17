@@ -56,7 +56,7 @@ namespace GymManagementSystem_DAL.Data.Configurations
             builder.ToTable(t =>
             {
                 t.HasCheckConstraint(
-                    $"CK_Users_Phone",
+                    "CK_Users_Phone",
                     "LEN([Phone]) = 11 AND [Phone] LIKE '01[0125]%' AND [Phone] NOT LIKE '%[^0-9]%'"
                 );
 

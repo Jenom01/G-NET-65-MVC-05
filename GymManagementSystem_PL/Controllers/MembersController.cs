@@ -31,10 +31,6 @@ namespace GymManagementSystem_PL.Controllers
                     ModelState.AddModelError(nameof(model.Phone), "This phone number is already used");
                     return View(model);
 
-                case MemberResult.Failure:
-                    ModelState.AddModelError(nameof(model), "Something went wrong");
-                    return View(model);
-
                 default:
                     TempData["Success"] = "Member created successfully";
                     return RedirectToAction(nameof(Index));
@@ -89,9 +85,8 @@ namespace GymManagementSystem_PL.Controllers
                     ModelState.AddModelError(nameof(model.Phone), "This phone number is already used");
                     return View(model);
 
-                case MemberResult.Failure:
-                    ModelState.AddModelError(nameof(model), "Something went wrong");
-                    return View(model);
+                case MemberResult.NotFound:
+                    return NotFound();
 
                 default:
                     TempData["Success"] = "Member updated successfully";
@@ -106,9 +101,7 @@ namespace GymManagementSystem_PL.Controllers
 
             if (member is null) return NotFound();
 
-            ViewBag.Id = member.Id;
-
-            return View();
+            return View(member);
         }
 
         [HttpPost]

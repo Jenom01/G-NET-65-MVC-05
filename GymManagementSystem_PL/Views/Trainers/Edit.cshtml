@@ -25,8 +25,6 @@
                         <hr class="mt-2">
                     </div>
                     <div class="row g-3 mb-4">
-
-
                         <div class="col-md-6">
                             <label asp-for="Email" class="form-label fw-semibold">
                                 Email Address <span class="text-danger">*</span>
@@ -42,6 +40,12 @@
                             <input asp-for="Phone" type="tel" class="form-control" />
                             <span asp-validation-for="Phone" class="text-danger"></span>
                         </div>
+                    </div>
+                    <div class="section-header mb-3">
+                        <h5 class="text-primary fw-bold">Address</h5>
+                        <hr class="mt-2">
+                    </div>
+                    <div class="row g-3 mb-4">
                         <div class="col-md-6">
                             <label asp-for="BuildingNumber" class="form-label fw-semibold">
                                 Building Number <span class="text-danger">*</span>

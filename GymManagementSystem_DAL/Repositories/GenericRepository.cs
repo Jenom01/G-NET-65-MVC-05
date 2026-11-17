@@ -41,9 +41,6 @@ namespace GymManagementSystem_DAL.Repositories
         public void Delete(TEntity entity)
             => _dbSet.Remove(entity);
 
-        public async Task<int> SaveChangesAsync(CancellationToken ct = default)
-            => await _dbContext.SaveChangesAsync(ct);
-
         protected static IQueryable<TEntity> ApplyIncludes(IQueryable<TEntity> query, Expression<Func<TEntity, object?>>[] includes)
         {
             foreach (var include in includes)
